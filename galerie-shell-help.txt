@@ -1,0 +1,8 @@
+Options :
+--source REP : Répertoire contenant les images JPEG à miniaturiser.
+--dest REP : Répertoire cible (où on va générer les vignettes et le fichier HTML).
+--verb : mode détaillé 
+--force : forcer la création de vignette, même si la vignette existe déjà.
+--help : Afficher la liste des options disponibles
+--index FICHIER : générer la galerie dans le fichier spécifié au lieu de générer un fichier index.html
+
