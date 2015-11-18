@@ -67,14 +67,15 @@ html_head >"$dest/$fichier"
 # Ajout des images
 for fic in `ls "$src"`
 do
-    if test ${fic##*.} = "jpg"
-    then
+    case "${fic##*.}" in
+    jpg|jpeg|gif|png|bmp)
         if test $verb = 1
         then
             echo "\"$fic\""
         fi
-        ./generate-img-fragment.sh "$src/$fic" >>"$dest/$fichier"
-    fi
+        ./generate-img-fragment.sh "$src/$fic" >>"$dest/$fichier";;
+    *);;#pas un fichier image reconnu
+    esac
 done
 
 # Ecriture de la fin du fichier

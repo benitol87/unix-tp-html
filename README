@@ -1,6 +1,8 @@
 Restant à faire :
   Partie shell
     * Créer les vignettes (dans le répertoire cible?)
+    * Titre des pages HTML
+    * cas --index ~/index.html
     * Faire les tests
     * Bootstrap
     * Légendes
