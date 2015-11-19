@@ -1,6 +1,10 @@
 # Fichiers temporaires de vim
 *~
 
+# Répertoires de tests
+dest/*
+source/*
+
 # Images
 *.jpg
 *.png
