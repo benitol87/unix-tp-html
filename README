@@ -1,8 +1,10 @@
 Restant à faire :
   Partie shell 
     * Faire les tests
+    * l'option --force ignore le fichier html existant alors qu'elle doit ignorer les vignettes existantes
     * Mettre plus d'infos dans l'attribut title des balises img
-    
+    * Faire une page plus jolie avec un titre, le tout centré etc...
+
   Partie Makefile
     * Tout
 
