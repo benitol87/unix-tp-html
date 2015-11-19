@@ -65,6 +65,9 @@ fi
 html_head >"$dest/$fichier"
 
 # Ajout des images
+attribut="active"
+compteur=0
+
 for fic in `ls "$src"`
 do
     case "${fic##*.}" in
@@ -73,10 +76,22 @@ do
         then
             echo "\"$fic\""
         fi
-        ./generate-img-fragment.sh "$src/$fic" >>"$dest/$fichier";;
+        ./generate-img-fragment.sh "$src/$fic" $attribut >>"$dest/$fichier"
+        attribut=" "
+        compteur=`expr $compteur + 1`;;
     *);;#pas un fichier image reconnu
     esac
 done
+
+# Points indiquant l'image sur laquelle on se trouve
+attribut="active"
+echo "<ol class=\"carousel-indicators\">" >>"$dest/$fichier"
+for i in `seq 1 $compteur`
+do
+    echo "<li data-target='#myCarousel' data-slide-to='$i' class='$attribut'></li>" >>"$dest/$fichier"
+    attribut=" "
+done
+echo "</ol>" >>"$dest/$fichier"
 
 # Ecriture de la fin du fichier
 html_tail >>"$dest/$fichier"

@@ -7,13 +7,12 @@ html_head(){
     echo "      <link rel=\"stylesheet\" href=\"$DIR/bootstrap.min.css\"/>"
     echo "      <script src=\"$DIR/jquery.min.js\"></script>"
     echo "      <script src=\"$DIR/bootstrap.min.js\"></script>"
-    echo "  </head>"
-    echo "  <body>"
+    echo "  </head>" 
+    cat snippets/body.html
 }
 
 html_tail(){
-    echo "  </body>"
-    echo "</html>"
+    cat snippets/tail.html
 }
 
 html_title(){
