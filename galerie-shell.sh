@@ -7,7 +7,7 @@ fichier="index.html"
 repCourant=$(pwd)
 # On récupère le nom du dossier de l'exécutable
 DIR=$(cd "$(dirname "$0")" && pwd)
-# On se replace dans le répertoire de base
+# On se replace dans le répertoire dans lequel on était au départ
 cd "$repCourant"
 
 usage (){
@@ -70,7 +70,7 @@ html_head "Galerie d'images" >"$dest/$fichier"
 # Ajout des images
 attribut="active" # Classe donnée à la première balise image
 compteur=0
-PICTURE_FOLDER="${DIR}/pictures"
+PICTURE_FOLDER="$DIR/pictures"
 
 # Création si besoin du répertoire contenant les vignettes
 mkdir $PICTURE_FOLDER 2>/dev/null
@@ -86,7 +86,11 @@ do
             echo "\"$fic\""
         fi
 
-        [ $force -eq 1 -o -f "$PICTURE_FOLDER/$fic" ] || convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic" && [ $verb -eq 1 ] && echo "Créé" # Si la vignette n'existe pas, on la crée
+        if [ $force -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
+        then
+            convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic"
+            [ $verb -eq 1 ] && echo "Vignette créée" # Si la vignette n'existe pas, on la crée
+        fi
 
         ./generate-img-fragment.sh $PICTURE_FOLDER/$fic $attribut >>"$dest/$fichier"
         attribut=" "
@@ -96,12 +100,12 @@ do
 done
 
 # Indication sur la position de l'image visualisée dans le carousel
-attribut="active"
+attribut="active" # Classe attribuée au point correspondant à l'image active
 echo "<ol class=\"carousel-indicators\">" >>"$dest/$fichier"
 for i in `seq 1 $compteur`
 do
     echo "<li data-target='#myCarousel' data-slide-to='"`expr $i - 1`"' class='$attribut'></li>" >>"$dest/$fichier"
-    attribut=" "
+    attribut=" " # Seule une balise li doit avoir cette classe
 done
 echo "</ol>" >>"$dest/$fichier"
 
