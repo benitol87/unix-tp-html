@@ -1,6 +1,10 @@
 # Fichiers temporaires de vim
 *~
 
+# Fichier html générés
+index.html
+*/index.html
+
 # Répertoires de tests
 dest/*
 source/*

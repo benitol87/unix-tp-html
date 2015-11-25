@@ -1,3 +1,6 @@
+# Script permettant de générer une galerie d'images (cf galerie-shell-help.txt pour la syntaxe)
+
+# Initialisations
 src="."
 dest="."
 verb=0
@@ -10,6 +13,7 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 # On se replace dans le répertoire dans lequel on était au départ
 cd "$repCourant"
 
+# Fonction qui affiche la syntaxe de ce script
 usage (){
     cat "$DIR/galerie-shell-help.txt"
 }
@@ -20,7 +24,7 @@ do
     case "$1" in
         --source|-s) 
             src="$2"
-            if test -z "${src// }"
+            if [ -z "${src// }" ]
             then
                 echo "Le nom du dossier source est vide."
                 usage
@@ -29,7 +33,7 @@ do
             shift;;
         --dest|-d)
             dest="$2"
-            if test -z "${dest// }"
+            if [ -z "${dest// }" ]
             then
                 echo "Le nom du dossier de destination est vide."
                 usage
@@ -46,7 +50,7 @@ do
         --index|-i)
             fichier="$2"
             # Test nom de fichier vide ou ne contenant que des espaces
-            if test -z "${fichier// }"
+            if [ -z "${fichier// }" ]
             then
                 echo "Le nom du fichier de destination est vide."
                 usage
@@ -81,7 +85,7 @@ do
     # ${fic##*.} permet de ne garder que l'extension des fichiers
     case "${fic##*.}" in
     jpg|jpeg|gif|png|bmp)
-        if test $verb = 1
+        if [ $verb = 1 ]
         then
             echo "\"$fic\""
         fi
@@ -92,9 +96,16 @@ do
             [ $verb -eq 1 ] && echo "Vignette créée" # Si la vignette n'existe pas, on la crée
         fi
 
-        ./generate-img-fragment.sh $PICTURE_FOLDER/$fic $attribut >>"$dest/$fichier"
+        # Ecriture du code HTML pour une image:
+        #  - Argument 1 : Nom du fichier image utilisé
+        #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image)
+        #  - Argument 3 : Classe(s) du div contenant l'image
+        # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
+        info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)\"
+        ./generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
+
         attribut=" "
-        compteur=`expr $compteur + 1`;;
+        compteur=`expr "$compteur" + 1`;;
     *);;#pas un fichier image reconnu, on le passe
     esac
 done
@@ -102,7 +113,7 @@ done
 # Indication sur la position de l'image visualisée dans le carousel
 attribut="active" # Classe attribuée au point correspondant à l'image active
 echo "<ol class=\"carousel-indicators\">" >>"$dest/$fichier"
-for i in `seq 1 $compteur`
+for i in `seq 1 "$compteur"`
 do
     echo "<li data-target='#myCarousel' data-slide-to='"`expr $i - 1`"' class='$attribut'></li>" >>"$dest/$fichier"
     attribut=" " # Seule une balise li doit avoir cette classe
