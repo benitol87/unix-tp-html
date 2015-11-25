@@ -1,4 +1,8 @@
-# Script permettant de générer une galerie d'images (cf galerie-shell-help.txt pour la syntaxe)
+#! /bin/sh
+
+#################################################################################################
+# Script permettant de générer une galerie d'images (cf galerie-shell-help.txt pour la syntaxe) #
+#################################################################################################
 
 # Initialisations
 src="."
@@ -102,7 +106,7 @@ do
         #  - Argument 3 : Classe(s) du div contenant l'image
         # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
         info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)\"
-        ./generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
+        $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
 
         attribut=" "
         compteur=`expr "$compteur" + 1`;;

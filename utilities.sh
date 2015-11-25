@@ -7,7 +7,7 @@ html_title(){
 
 html_head(){
     # $1 = titre de la page
-    cat snippets/head.html 
+    cat $DIR/snippets/head.html 
     echo "      <title>$1</title>"
     echo "      <link rel=\"stylesheet\" href=\"$DIR/$INCLUDE/bootstrap.min.css\"/>"
     echo "      <script src=\"$DIR/$INCLUDE/jquery.min.js\"></script>"
@@ -15,9 +15,9 @@ html_head(){
     echo "  </head>" 
     echo "  <body>"
     html_title "Galerie d'images"
-    cat snippets/body.html
+    cat $DIR/snippets/body.html
 }
 
 html_tail(){
-    cat snippets/tail.html
+    cat $DIR/snippets/tail.html
 }

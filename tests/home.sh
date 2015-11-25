@@ -6,8 +6,6 @@
 #  - contient des images, et uniquement des images.
 # Répertoire destination (home directory) :
 #  - existant avant le lancement du script
-#  - chemin absolu (notation ~)
-#  - pas de caractères spéciaux dans les noms de fichiers/répertoires
 
 DEST=~
 SRC=source
