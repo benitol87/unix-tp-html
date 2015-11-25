@@ -5,6 +5,10 @@
 #################################################################################################
 
 # Initialisations
+# Pour que les boucles for fonctionnent correctement avec les espaces
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
+
 src="."
 dest="."
 verb=0
@@ -81,11 +85,15 @@ compteur=0
 PICTURE_FOLDER="$DIR/pictures"
 
 # Création si besoin du répertoire contenant les vignettes
-mkdir $PICTURE_FOLDER 2>/dev/null
+mkdir "$PICTURE_FOLDER" 2>/dev/null
 
 # On parcourt les fichiers du répertoire source à la recherche d'images
-for fic in `ls "$src"`
+for fic in $(ls -Q "$src")
 do
+    # ls -Q met les noms des fichiers entre guillemets (ce qui résout pas les problèmes avec les espaces, mais il faut virer ces guillemets)
+    fic=${fic#\"} # On enlève le dernier
+    fic=${fic%\"} # et le premier
+
     # ${fic##*.} permet de ne garder que l'extension des fichiers
     case "${fic##*.}" in
     jpg|jpeg|gif|png|bmp)
@@ -97,7 +105,7 @@ do
         if [ $force -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
         then
             convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic"
-            [ $verb -eq 1 ] && echo "Vignette créée" # Si la vignette n'existe pas, on la crée
+            [ $verb = 1 ] && echo "Vignette créée" # Si la vignette n'existe pas, on la crée
         fi
 
         # Ecriture du code HTML pour une image:
@@ -126,3 +134,6 @@ echo "</ol>" >>"$dest/$fichier"
 
 # Ecriture de la fin du fichier
 html_tail >>"$dest/$fichier"
+
+# Fin du programme
+IFS=$SAVEIFS
