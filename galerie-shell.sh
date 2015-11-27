@@ -113,7 +113,7 @@ do
         #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image)
         #  - Argument 3 : Classe(s) du div contenant l'image
         # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
-        info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)\"
+        info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)
         $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
 
         attribut=" "
