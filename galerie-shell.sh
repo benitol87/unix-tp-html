@@ -5,7 +5,7 @@
 # (cf galerie-shell-help.txt pour la syntaxe)       #
 #####################################################
 
-# Initialisations
+######### Initialisations #############
 # Pour que les boucles for fonctionnent correctement avec les espaces et les guillemets
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
@@ -22,10 +22,33 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 # On se replace dans le répertoire dans lequel on était au départ
 cd "$repCourant"
 
+
+########### Fonctions #################
+
 # Fonction qui affiche la syntaxe de ce script
 usage (){
     cat "$DIR/galerie-shell-help.txt"
 }
+
+# Test de la validité du nom des répertoires source et destination
+test_nom_dossier (){
+    # Test nom de dossier non vide
+    if [ -z "${1// }" ]
+    then
+        echo "Le nom du dossier $2 est vide."
+        usage
+        exit 1
+    fi
+    
+    # Test dossier existant
+    if [ ! -d "$1"  ]
+    then
+        echo "Le dossier $2 spécifié n'existe pas."
+        exit 1
+    fi
+}
+
+######### Début du programme #########
 
 # Récupération des arguments en ligne de commande
 while test $# -ne 0
@@ -33,41 +56,11 @@ do
     case "$1" in
         --source|-s) 
             src="$2"
-            
-            # Test nom du dossier non vide
-            if [ -z "${src// }" ]
-            then
-                echo "Le nom du dossier source est vide."
-                usage
-                exit 1
-            fi
-
-            # Test dossier existant
-            if [ ! -d "$src"  ]
-            then
-                echo "Le dossier source spécifié n'existe pas."
-                exit 1
-            fi
-
+            test_nom_dossier "$src" "source"
             shift;;
         --dest|-d)
             dest="$2"
- 
-            # Test nom du répertoire de destination non vide
-            if [ -z "${dest// }" ]
-            then
-                echo "Le nom du dossier de destination est vide."
-                usage
-                exit 1
-            fi
-
-            # Test dossier existant 
-            if [ ! -d "$dest"  ]
-            then
-                echo "Le dossier de destination spécifié n'existe pas."
-                exit 1
-            fi
-
+            test_nom_dossier "$dest" "destination" 
             shift;;
         --verb|-v)
             verb=1;;
@@ -111,35 +104,35 @@ mkdir "$PICTURE_FOLDER" 2>/dev/null
 # On parcourt les fichiers du répertoire source à la recherche d'images
 for fic in $(ls -Q "$src")
 do
-    # ls -Q met les noms des fichiers entre guillemets (ce qui résout pas les problèmes avec les espaces, mais il faut virer ces guillemets)
+    # ls -Q met les noms des fichiers entre guillemets => il faut les virer
     fic=${fic#\"} # On enlève le dernier
     fic=${fic%\"} # et le premier
 
     # ${fic##*.} permet de ne garder que l'extension des fichiers
     case "${fic##*.}" in
-    jpg|jpeg|gif|png|bmp)
-        if [ $verb = 1 ]
-        then
-            echo "\"$fic\""
-        fi
+        jpg|jpeg|gif|png|bmp)
+            if [ $verb = 1 ]
+            then
+                echo "\"$fic\""
+            fi
 
-        if [ $force -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
-        then
-            convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic"
-            [ $verb = 1 ] && echo "Vignette créée" # Si la vignette n'existe pas, on la crée
-        fi
+            if [ $force -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
+            then
+                convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic"
+                [ $verb = 1 ] && echo "Vignette créée" # Si la vignette n'existe pas, on la crée
+            fi
 
-        # Ecriture du code HTML pour une image:
-        #  - Argument 1 : Nom du fichier image utilisé
-        #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image)
-        #  - Argument 3 : Classe(s) du div contenant l'image
-        # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
-        info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)
-        $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
+            # Ecriture du code HTML pour une image:
+            #  - Argument 1 : Nom du fichier image utilisé
+            #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image)
+            #  - Argument 3 : Classe(s) du div contenant l'image
+            # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
+            info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)
+            $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
 
-        attribut=" "
-        compteur=`expr "$compteur" + 1`;;
-    *);;#pas un fichier image reconnu, on le passe
+            attribut=" "
+            compteur=`expr "$compteur" + 1`;;
+        *);;#pas un fichier image reconnu, on le passe
     esac
 done
 
@@ -149,21 +142,11 @@ then
     exit 2
 fi
 
-# Indication sur la position de l'image visualisée dans le carousel
-if [ "$compteur" -gt 1 ]
-then
-    attribut="active" # Classe attribuée au point correspondant à l'image active
-    echo "<ol class=\"carousel-indicators\">" >>"$dest/$fichier"
-    for i in `seq 1 "$compteur"`
-    do
-        echo "<li data-target='#myCarousel' data-slide-to='"`expr $i - 1`"' class='$attribut'></li>" >>"$dest/$fichier"
-        attribut=" " # Seule une balise li doit avoir cette classe
-    done
-    echo "</ol>" >>"$dest/$fichier"
-fi
+$DIR/generate-carousel-indicators.sh "$compteur" >>"$dest/$fichier"
 
 # Ecriture de la fin du fichier
 html_tail >>"$dest/$fichier"
 
 # Fin du programme
+echo "Fichier $dest/$fichier créé"
 IFS=$SAVEIFS
