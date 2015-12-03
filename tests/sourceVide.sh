@@ -2,22 +2,22 @@
 
 # Test de la commande en spécifiant un répertoire source ne contenant aucune image
 
-DEST=dest
-SRC=source
+dest="dest"
+source="source"
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 PATH="$HERE/..:$PATH"
 
-rm -fr source dest
-mkdir -p source dest
+rm -fr $source $dest
+mkdir -p $source $dest
 
-echo "Patate">source/fichier.txt
+echo "Patate">$source/fichier.txt
 
-galerie-shell.sh --source $SRC --dest $DEST
+galerie-shell.sh --source "$source" --dest "$dest"
 
-if [ -f $DEST/index.html ]
+if [ "$?" = 0 ]
 then
-    echo "Now run 'firefox dest/index.html' to check the result"
+    echo "Test failed"
 else
-    echo "ERROR: $DEST/index.html was not generated"
+    echo "Test succeeded"
 fi
