@@ -10,18 +10,25 @@
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
 
+# Initialisations des variables utilisées
 src="."
 dest="."
 verb=0
 force=0
 fichier="index.html"
+compteur=0
+attribut="active" # Classe donnée à la première balise image
 
-repCourant=$(pwd)
 # On récupère le nom du dossier de l'exécutable
 DIR=$(cd "$(dirname "$0")" && pwd)
-# On se replace dans le répertoire dans lequel on était au départ
-cd "$repCourant"
 
+# Répertoire contenant les vignettes
+PICTURE_FOLDER="$DIR/pictures"
+# Création si besoin 
+mkdir "$PICTURE_FOLDER" 2>/dev/null
+
+# Inclusion du script utilities
+. $DIR/utilities.sh
 
 ########### Fonctions #################
 
@@ -39,7 +46,7 @@ test_nom_dossier (){
         usage
         exit 1
     fi
-    
+
     # Test dossier existant
     if [ ! -d "$1"  ]
     then
@@ -48,59 +55,46 @@ test_nom_dossier (){
     fi
 }
 
-######### Début du programme #########
-
-# Récupération des arguments en ligne de commande
-while test $# -ne 0
-do
-    case "$1" in
-        --source|-s) 
-            src="$2"
-            test_nom_dossier "$src" "source"
-            shift;;
-        --dest|-d)
-            dest="$2"
-            test_nom_dossier "$dest" "destination" 
-            shift;;
-        --verb|-v)
-            verb=1;;
-        --force|-f)
-            force=1;;
-        --help|-h)
-            usage
-            exit 0;;
-        --index|-i)
-            fichier="$2"
-            # Test nom de fichier vide ou ne contenant que des espaces
-            if [ -z "${fichier// }" ]
-            then
-                echo "Le nom du fichier de destination est vide."
+recuperation_arguments(){
+    # Récupération des arguments en ligne de commande
+    while test $# -ne 0
+    do
+        case "$1" in
+            --source|-s) 
+                src="$2"
+                test_nom_dossier "$src" "source"
+                shift;;
+            --dest|-d)
+                dest="$2"
+                test_nom_dossier "$dest" "destination" 
+                shift;;
+            --verb|-v)
+                verb=1;;
+            --force|-f)
+                force=1;;
+            --help|-h)
                 usage
-                exit 1
-            fi
-            shift;;
-        *)
-            echo "Option non reconnue : $1"
-            usage
-            exit 1;;
-    esac
-    shift
-done
+                exit 0;;
+            --index|-i)
+                fichier="$2"
+                # Test nom de fichier vide ou ne contenant que des espaces
+                if [ -z "${fichier// }" ]
+                then
+                    echo "Le nom du fichier de destination est vide."
+                    usage
+                    exit 1
+                fi
+                shift;;
+            *)
+                echo "Option non reconnue : $1"
+                usage
+                exit 1;;
+        esac
+        shift
+    done
+}
 
-# Inclusion du script utilities
-. $DIR/utilities.sh
-
-# Ecriture de l'en-tete
-html_head "Galerie d'images" >"$dest/$fichier"
-
-# Ajout des images
-attribut="active" # Classe donnée à la première balise image
-compteur=0
-PICTURE_FOLDER="$DIR/pictures"
-
-# Création si besoin du répertoire contenant les vignettes
-mkdir "$PICTURE_FOLDER" 2>/dev/null
-
+parcourir_images_source (){
 # On parcourt les fichiers du répertoire source à la recherche d'images
 for fic in $(ls -Q "$src")
 do
@@ -124,10 +118,12 @@ do
 
             # Ecriture du code HTML pour une image:
             #  - Argument 1 : Nom du fichier image utilisé
-            #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image)
+            #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image, résultat de exiftags)
             #  - Argument 3 : Classe(s) du div contenant l'image
             # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
             info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)
+            info=$info"
+"$($DIR/exiftags "$src/$fic" 2>/dev/null)
             $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
 
             attribut=" "
@@ -135,18 +131,32 @@ do
         *);;#pas un fichier image reconnu, on le passe
     esac
 done
+}
 
+######### Début du programme #########
+recuperation_arguments $@
+
+# Ecriture de l'en-tete
+html_head "Galerie d'images" >"$dest/$fichier"
+
+# Ecriture des balises <img/>
+parcourir_images_source
+
+# Test si au moins une image a été trouvée
 if [ "$compteur" = 0 ]
 then
     echo "Aucune image trouvée dans le dossier source"
     exit 2
 fi
 
+# Ajout des points du carousel si besoin
 $DIR/generate-carousel-indicators.sh "$compteur" >>"$dest/$fichier"
 
 # Ecriture de la fin du fichier
 html_tail >>"$dest/$fichier"
 
-# Fin du programme
-echo "Fichier $dest/$fichier créé"
+# Affichage d'un message convivial
+echo "Fichier créé, vous pouvez lancer 'firefox $dest/$fichier'"
+######### Fin du programme #########
+
 IFS=$SAVEIFS

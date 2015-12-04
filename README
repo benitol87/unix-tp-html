@@ -1,7 +1,7 @@
 Restant à faire :
   Partie shell 
-    * Mettre plus d'infos dans l'attribut title des balises img 
-    * Refactoring du code
+    * Refaire les tests
+    * Refactoring pour la partie makefile
 
   Partie Makefile
     * Tout
