@@ -95,48 +95,46 @@ recuperation_arguments(){
 }
 
 parcourir_images_source (){
-# On parcourt les fichiers du répertoire source à la recherche d'images
-for fic in $(ls -Q "$src")
-do
-    # ls -Q met les noms des fichiers entre guillemets => il faut les virer
-    fic=${fic#\"} # On enlève le dernier
-    fic=${fic%\"} # et le premier
+    # On parcourt les fichiers du répertoire source à la recherche d'images
+    for fic in $(ls -Q "$src")
+    do
+        # ls -Q met les noms des fichiers entre guillemets => il faut les virer
+        fic=${fic#\"} # On enlève le dernier
+        fic=${fic%\"} # et le premier
 
-    # ${fic##*.} permet de ne garder que l'extension des fichiers
-    case "${fic##*.}" in
-        jpg|jpeg|gif|png|bmp)
-            if [ $verb = 1 ]
-            then
-                echo "\"$fic\""
-            fi
+        # ${fic##*.} permet de ne garder que l'extension des fichiers
+        case "${fic##*.}" in
+            jpg|jpeg|gif|png|bmp)
+                if [ $force -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
+                then
+                    convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic"
+                    [ $verb = 1 ] && echo "Vignette créée : $src/$fic"
+                fi
 
-            if [ $force -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
-            then
-                convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic"
-                [ $verb = 1 ] && echo "Vignette créée" # Si la vignette n'existe pas, on la crée
-            fi
+                # Ecriture du code HTML pour une image:
+                #  - Argument 1 : Nom du fichier image utilisé
+                #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image, résultat de exiftags)
+                #  - Argument 3 : Classe(s) du div contenant l'image
+                # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
+                info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)
+                info=$info"
+                "$($DIR/exiftags "$src/$fic" 2>/dev/null)
+                
+                $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
+                [ $verb = 1 ] && echo "Image ajoutée : $PICTURE_FOLDER/$fic"
 
-            # Ecriture du code HTML pour une image:
-            #  - Argument 1 : Nom du fichier image utilisé
-            #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image, résultat de exiftags)
-            #  - Argument 3 : Classe(s) du div contenant l'image
-            # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
-            info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)
-            info=$info"
-"$($DIR/exiftags "$src/$fic" 2>/dev/null)
-            $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
-
-            attribut=" "
-            compteur=`expr "$compteur" + 1`;;
-        *);;#pas un fichier image reconnu, on le passe
-    esac
-done
+                attribut=" "
+                compteur=`expr "$compteur" + 1`;;
+            *);;#pas un fichier image reconnu, on le passe
+        esac
+    done
 }
 
 ######### Début du programme #########
 recuperation_arguments $@
 
 # Ecriture de l'en-tete
+[ $verb = 1 ] && echo "Ecriture de l'en-tête du fichier HTML"
 html_head "Galerie d'images" >"$dest/$fichier"
 
 # Ecriture des balises <img/>
@@ -146,6 +144,7 @@ parcourir_images_source
 if [ "$compteur" = 0 ]
 then
     echo "Aucune image trouvée dans le dossier source"
+    rm "$dest/$fichier"
     exit 2
 fi
 
@@ -153,6 +152,7 @@ fi
 $DIR/generate-carousel-indicators.sh "$compteur" >>"$dest/$fichier"
 
 # Ecriture de la fin du fichier
+[ $verb = 1 ] && echo "Ecriture de la fin du fichier HTML"
 html_tail >>"$dest/$fichier"
 
 # Affichage d'un message convivial
