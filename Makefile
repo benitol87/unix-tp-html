@@ -6,14 +6,25 @@ DEST=./dest
 IMAGES=${shell cd $(SOURCE) && echo *.jpg}
 THUMBS=$(IMAGES:%=$(DEST)/%)
 IMAGE_DESC=$(IMAGES:%.jpg=$(DEST)/%.inc)
+LISTE_INC= #TODO
+LISTE_IMAGES= #TODO
 
+%.inc: %.jpg
+	# TODO Création des fichiers .inc
 
-# TODO
-gallery:
+index.html: LISTE_INC
+	# TODO Génération de la page html
 
-view:
+%.jpg:
+	# TODO Transformation d'une image en vignette
+
+gallery: index.html LISTE_IMAGES
+
+view: gallery
+	firefox index.html
 
 clean:
+	rm *.inc
 
 # Simplified version of exiftags's Makefile
 EXIFTAGS_OBJS=exiftags-1.01/exif.o exiftags-1.01/tagdefs.o exiftags-1.01/exifutil.o \
