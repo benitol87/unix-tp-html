@@ -130,7 +130,7 @@ parcourir_images_source (){
     done
 }
 
-######### Début du programme #########
+######## Début du programme ########
 recuperation_arguments $@
 
 # Ecriture de l'en-tete

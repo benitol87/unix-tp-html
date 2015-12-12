@@ -2,29 +2,29 @@
 SOURCE=../exemples-html/galerie_style/
 DEST=./dest
 
-
 IMAGES=${shell cd $(SOURCE) && echo *.jpg}
 THUMBS=$(IMAGES:%=$(DEST)/%)
-IMAGE_DESC=$(IMAGES:%.jpg=$(DEST)/%.inc)
-LISTE_INC= #TODO
-LISTE_IMAGES= #TODO
+IMAGE_DESC=$(IMAGES:%.jpg=$(DEST)/%.inc) 
+LISTE_IMAGES=${shell cd source && ls *.jpg} # Les images présentes dans la page sont celles contenues dans le répertoire 'source' contenu dans celui du makefile
+LISTE_INC=${shell echo $(LISTE_IMAGES) | sed s/.jpg/.inc/g} # Même liste que celle au-dessus en remplaçant les .jpg par .inc
 
 %.inc: %.jpg
-	# TODO Création des fichiers .inc
+	./generate-img-fragment.sh $< >$@
 
-index.html: LISTE_INC
-	# TODO Génération de la page html
+index.html: $(LISTE_INC)
+	./generate-index.sh
 
-%.jpg:
-	# TODO Transformation d'une image en vignette
+%.jpg: source/%.jpg
+	convert -resize 200x200 $< $@
 
-gallery: index.html LISTE_IMAGES
+gallery: index.html $(LISTE_IMAGES)
 
 view: gallery
 	firefox index.html
 
 clean:
 	rm *.inc
+	rm *.jpg
 
 # Simplified version of exiftags's Makefile
 EXIFTAGS_OBJS=exiftags-1.01/exif.o exiftags-1.01/tagdefs.o exiftags-1.01/exifutil.o \
