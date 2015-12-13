@@ -1,29 +1,30 @@
 # Source and destination directories, to be configured here:
-SOURCE=../exemples-html/galerie_style/
+SOURCE=./source
 DEST=./dest
+ 
+LISTE_IMAGES=${shell cd $(SOURCE) && echo *.jpg} # Les images présentes dans la page sont celles contenues dans le répertoire 'source' contenu dans celui du makefile
+LISTE_INC=$(LISTE_IMAGES:%.jpg=$(DEST)/%.inc) # Même liste que celle au-dessus en remplaçant les .jpg par .inc
 
-IMAGES=${shell cd $(SOURCE) && echo *.jpg}
-THUMBS=$(IMAGES:%=$(DEST)/%)
-IMAGE_DESC=$(IMAGES:%.jpg=$(DEST)/%.inc) 
-LISTE_IMAGES=${shell cd source && ls *.jpg} # Les images présentes dans la page sont celles contenues dans le répertoire 'source' contenu dans celui du makefile
-LISTE_INC=${shell echo $(LISTE_IMAGES) | sed s/.jpg/.inc/g} # Même liste que celle au-dessus en remplaçant les .jpg par .inc
-
-%.inc: %.jpg
-	./generate-img-fragment.sh $< >$@
+$(DEST)/%.inc: $(SOURCE)/%.jpg 
+	./generate-img-fragment.sh ${shell echo $< | cut -d'/' -f2} >$@
 
 index.html: $(LISTE_INC)
-	./generate-index.sh
+	./generate-index.sh $(DEST)
 
-%.jpg: source/%.jpg
-	convert -resize 200x200 $< $@
+%.jpg: $(SOURCE)/%.jpg
+	convert -resize 200x200 $< $(DEST)/$@
 
+.PHONY: gallery
 gallery: index.html $(LISTE_IMAGES)
 
+.PHONY: view
 view: gallery
-	firefox index.html
+	firefox $(DEST)/index.html
 
+.PHONY: clean
 clean:
-	rm -f *.inc  
+	rm -f $(DEST)/*.inc  
+	rm -f $(DEST)/*.jpg
 
 # Simplified version of exiftags's Makefile
 EXIFTAGS_OBJS=exiftags-1.01/exif.o exiftags-1.01/tagdefs.o exiftags-1.01/exifutil.o \
