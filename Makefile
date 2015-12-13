@@ -23,8 +23,7 @@ view: gallery
 	firefox index.html
 
 clean:
-	rm *.inc
-	rm *.jpg
+	rm -f *.inc  
 
 # Simplified version of exiftags's Makefile
 EXIFTAGS_OBJS=exiftags-1.01/exif.o exiftags-1.01/tagdefs.o exiftags-1.01/exifutil.o \

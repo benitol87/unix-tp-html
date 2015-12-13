@@ -7,7 +7,7 @@
 
 ######### Initialisations #############
 # Pour que les boucles for fonctionnent correctement avec les espaces et les guillemets
-SAVEIFS=$IFS
+SAVEIFS="$IFS"
 IFS=$(echo -en "\n\b")
 
 # Initialisations des variables utilisées
@@ -25,10 +25,10 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 # Répertoire contenant les vignettes
 PICTURE_FOLDER="$DIR/pictures"
 # Création si besoin 
-mkdir "$PICTURE_FOLDER" 2>/dev/null
+mkdir -p "$PICTURE_FOLDER"
 
 # Inclusion du script utilities
-. $DIR/utilities.sh
+. "$DIR/utilities.sh"
 
 ########### Fonctions #################
 
@@ -99,16 +99,16 @@ parcourir_images_source (){
     for fic in $(ls -Q "$src")
     do
         # ls -Q met les noms des fichiers entre guillemets => il faut les virer
-        fic=${fic#\"} # On enlève le dernier
-        fic=${fic%\"} # et le premier
+        fic="${fic#\"}" # On enlève le dernier
+        fic="${fic%\"}" # et le premier
 
         # ${fic##*.} permet de ne garder que l'extension des fichiers
         case "${fic##*.}" in
             jpg|jpeg|gif|png|bmp)
-                if [ $force -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
+                if [ "$force" -eq 1 -o ! -f "$PICTURE_FOLDER/$fic" ] 
                 then
                     convert -resize 200x200 "$src/$fic" "$PICTURE_FOLDER/$fic"
-                    [ $verb = 1 ] && echo "Vignette créée : $src/$fic"
+                    [ "$verb" = 1 ] && echo "Vignette créée : $src/$fic"
                 fi
 
                 # Ecriture du code HTML pour une image:
@@ -120,8 +120,8 @@ parcourir_images_source (){
                 info=$info"
                 "$($DIR/exiftags "$src/$fic" 2>/dev/null)
                 
-                $DIR/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
-                [ $verb = 1 ] && echo "Image ajoutée : $PICTURE_FOLDER/$fic"
+                "$DIR"/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
+                [ "$verb" = 1 ] && echo "Image ajoutée : $PICTURE_FOLDER/$fic"
 
                 attribut=" "
                 compteur=`expr "$compteur" + 1`;;
@@ -134,7 +134,7 @@ parcourir_images_source (){
 recuperation_arguments $@
 
 # Ecriture de l'en-tete
-[ $verb = 1 ] && echo "Ecriture de l'en-tête du fichier HTML"
+[ "$verb" = 1 ] && echo "Ecriture de l'en-tête du fichier HTML"
 html_head "Galerie d'images" >"$dest/$fichier"
 
 # Ecriture des balises <img/>
@@ -149,14 +149,14 @@ then
 fi
 
 # Ajout des points du carousel si besoin
-$DIR/generate-carousel-indicators.sh "$compteur" >>"$dest/$fichier"
+"$DIR"/generate-carousel-indicators.sh "$compteur" >>"$dest/$fichier"
 
 # Ecriture de la fin du fichier
-[ $verb = 1 ] && echo "Ecriture de la fin du fichier HTML"
+[ "$verb" = 1 ] && echo "Ecriture de la fin du fichier HTML"
 html_tail >>"$dest/$fichier"
 
 # Affichage d'un message convivial
 echo "Fichier créé, vous pouvez lancer 'firefox $dest/$fichier'"
 ######### Fin du programme #########
 
-IFS=$SAVEIFS
+IFS="$SAVEIFS"
