@@ -16,7 +16,7 @@ make-img.sh source/image1.jpg
 make-img.sh source/image2.jpg
 
 # Les vignettes sont créées ici si elles n'existent pas encore
-galerie-shell.sh --source $SRC --dest $DEST 
+galerie-shell.sh --source $SRC --dest $DEST 1>/dev/null
 infoAvant=$(stat $HERE/../pictures/image1.jpg)
 
 # Petit temps d'attente pour que la commande stat renvoie des résultats différents en cas de modification
