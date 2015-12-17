@@ -23,7 +23,7 @@ attribut="active" # Classe donnée à la première balise image
 DIR=$(cd "$(dirname "$0")" && pwd)
 
 # Répertoire contenant les vignettes
-PICTURE_FOLDER="$DIR/pictures"
+PICTURE_FOLDER="$DIR/thumbs"
 # Création si besoin 
 mkdir -p "$PICTURE_FOLDER"
 
@@ -96,7 +96,7 @@ recuperation_arguments(){
 
 parcourir_images_source (){
     # On parcourt les fichiers du répertoire source à la recherche d'images
-    for fic in $(ls -Q "$src")
+    for fic in $(ls -AQ "$src")
     do
         # ls -Q met les noms des fichiers entre guillemets => il faut les virer
         fic="${fic#\"}" # On enlève le dernier

@@ -14,8 +14,9 @@ mkdir -p source dest
 #make-img.sh "source/*.jpg" # Nope, convert considère l'astérisque comme une expression régulière
 make-img.sh "source/   .jpg"
 make-img.sh "source/~.jpg"
+make-img.sh "source/.FICHIER_CACHE.jpg"
 make-img.sh "source/une image.jpg"
-make-img.sh "source/<,;!%\$>.jpg"
+make-img.sh "source/<(éèà,;!%\$)>.jpg"
 #make-img.sh 'source/".jpg' # Problème avec les guillemets lors du convert
 #make-img.sh 'source/?.jpg' # Le fichier image n'est pas créé
 

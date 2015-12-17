@@ -7,7 +7,7 @@ PATH="$HERE/..:$PATH"
 
 source=source
 dest=dest
-index="*page*.html"
+index="*page(>°°)>-_é*,:!'\".html"
 
 rm -fr $source $dest
 mkdir -p $source $dest 

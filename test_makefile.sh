@@ -1,7 +1,7 @@
 cd $(dirname "$0")
 
 # Initialisations
-nbIterations=50
+nbIterations=10
 ./init_test_makefile.sh >/dev/null
 make clean >/dev/null
 
