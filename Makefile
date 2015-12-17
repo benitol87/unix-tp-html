@@ -6,7 +6,7 @@ LISTE_IMAGES=${shell cd $(SOURCE) && echo *.jpg} # Les images présentes dans la
 LISTE_INC=$(LISTE_IMAGES:%.jpg=$(DEST)/%.inc) # Même liste que celle au-dessus en remplaçant les .jpg par .inc
 
 $(DEST)/%.inc: $(SOURCE)/%.jpg 
-	./generate-img-fragment.sh ${shell echo $< | cut -d'/' -f2} >$@
+	./generate-img-fragment.sh ${shell echo $< | cut -d'/' -f2} " " " " "../$<"  >$@
 
 index.html: $(LISTE_INC)
 	./generate-index.sh $(DEST)

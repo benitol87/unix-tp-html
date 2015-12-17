@@ -115,12 +115,13 @@ parcourir_images_source (){
                 #  - Argument 1 : Nom du fichier image utilisé
                 #  - Argument 2 : Informations affichées dans l'infobulle (date de dernière modif de l'image, résultat de exiftags)
                 #  - Argument 3 : Classe(s) du div contenant l'image
+		#  - Argument 4 : Cible du lien de l'image
                 # Le tout est redirigé vers le fichier HTML que l'on avait déjà commencé à remplir
                 info=$(stat "$src/$fic" | tail -n 1 | cut -d' ' -f2,3 | cut -d'.' -f1)
                 info=$info"
                 "$($DIR/exiftags "$src/$fic" 2>/dev/null)
                 
-                "$DIR"/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" >>"$dest/$fichier"
+		"$DIR"/generate-img-fragment.sh "$PICTURE_FOLDER/$fic" "$info" "$attribut" "$(pwd)/$src/$fic" >>"$dest/$fichier"
                 [ "$verb" = 1 ] && echo "Image ajoutée : $PICTURE_FOLDER/$fic"
 
                 attribut=" "

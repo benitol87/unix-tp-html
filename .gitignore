@@ -1,5 +1,6 @@
 # Fichiers temporaires de vim
 *~
+*.swp
 
 # Fichier html générés
 index.html
